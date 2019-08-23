@@ -17,7 +17,7 @@
                 <img :src="imgSource" alt="" class="film__img" :class="$mq">
                 <div class="film__properties">
                     <h2>{{ filmData.original_title }}</h2>
-                    <div class="film__genres">genres</div>
+                    <div class="film__genres" v-for="genre in genres">{{ genre }}</div>
                     <div class="film__rating">Popularity - {{ filmData.popularity }}</div>
                     <div class="film__rating">Vote Average - {{ filmData.vote_average }}</div>
                     <div class="film__rating">Vote Count - {{ filmData.vote_count }}</div>
@@ -32,7 +32,8 @@
 <script>
     export default {
         props: [
-            'filmData'
+            'filmData',
+            'genres'
         ],
         data() {
             return {

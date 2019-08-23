@@ -1,13 +1,17 @@
 <template>
     <div class="wrapper">
 
-        <ul class="film__list">
-            <film-item class="film__item"
-                       v-for="filmItem in filmList"
-                       :film-data="filmItem"
-                       :genres="getGenres(filmItem.genre_ids)">
-            </film-item>
-        </ul>
+        <div v-for="genreFilms in filmsByGenre">
+            <h1>{{ genreFilms.name }}</h1>
+            <ul class="film__list">
+                <film-item class="film__item"
+                           v-for="filmItem in genreFilms.list"
+                           :film-data="filmItem"
+                           :genres="getGenres(filmItem.genre_ids)">
+                </film-item>
+            </ul>
+        </div>
+
     </div>
 </template>
 
@@ -21,7 +25,8 @@
             return {
                 genres: [],
                 filmList: [],
-                currentFilmList: []
+                currentFilmList: [],
+                filmsByGenre: []
             };
         },
         methods: {
@@ -41,17 +46,50 @@
                 }
 
                 return genreNames;
+            },
+            getGenreFilms: function (genreId) {
+                var genreFilms = [];
+
+                for (var i = 0; i < this.filmList.length; i++) {
+                    if (this.filmList[i].genre_ids.includes(genreId)) {
+                        genreFilms.push(this.filmList[i]);
+                    }
+                }
+
+                return genreFilms;
+            },
+            getFilmsByGenre: function () {
+                var filmsByGenre = [];
+
+                for (var i = 0; i < this.genres.length; i++) {
+                    var genre = this.genres[i];
+                    var name = genre.name;
+                    var genreFilms = this.getGenreFilms(genre.id);
+
+                    filmsByGenre.push({
+                        name: name,
+                        list: genreFilms
+                    })
+                }
+
+                return filmsByGenre;
             }
         },
         mounted() {
             // a80e3ddac5951a3c686e7677c4007931
             axios
-                .get('https://api.themoviedb.org/3/trending/all/week?api_key=a80e3ddac5951a3c686e7677c4007931')
-                .then(response => (this.filmList = response.data.results));
+                .get('https://api.themoviedb.org/3/trending/all/week?api_key=a80e3ddac5951a3c686e7677c4007931&page=10')
+                .then(response => {
+                    this.filmList = response.data.results;
+                    this.getGenreFilms();
+                    this.filmsByGenre = this.getFilmsByGenre();
+                });
 
             axios
                 .get('https://api.themoviedb.org/3/genre/movie/list?api_key=a80e3ddac5951a3c686e7677c4007931&language=en-US')
-                .then(response => (this.genres = response.data.genres));
+                .then(response => {
+                    this.genres = response.data.genres;
+                });
 
         }
     }
