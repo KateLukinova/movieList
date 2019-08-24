@@ -1,17 +1,27 @@
 <template>
     <div class="wrapper">
-
-        <div v-for="genreFilms in filmsByGenre">
-            <h1>{{ genreFilms.name }}</h1>
+        <div class="genres__buttons">
+            <button @click="setCurrentFilmList('All')">All</button>
+            <button @click="setCurrentFilmList('Comedy')">Comedy</button>
+            <button @click="setCurrentFilmList('Drama')">Drama</button>
+            <button @click="setCurrentFilmList('Adventure')">Adventure</button>
+            <button @click="setCurrentFilmList('Animation')">Animation</button>
+            <button @click="setCurrentFilmList('Horror')">Horror</button>
+        </div>
             <ul class="film__list">
                 <film-item class="film__item"
-                           v-for="filmItem in genreFilms.list"
+                           v-for="filmItem in currentFilmList"
                            :film-data="filmItem"
                            :genres="getGenres(filmItem.genre_ids)">
                 </film-item>
             </ul>
-        </div>
-
+<div class="pagination">
+    <button @click="getFilmsByPage(1)">1</button>
+    <button @click="getFilmsByPage(2)">2</button>
+    <button @click="getFilmsByPage(3)">3</button>
+    <button @click="getFilmsByPage(4)">4</button>
+    <button @click="getFilmsByPage(5)">5</button>
+</div>
     </div>
 </template>
 
@@ -73,17 +83,33 @@
                 }
 
                 return filmsByGenre;
+            },
+            setCurrentFilmList: function (genre) {
+                if (genre == 'All') {
+                    this.currentFilmList = this.filmList;
+                    return;
+                }
+
+                var filmsByGenre = this.filmsByGenre.find(g => {
+                    return g.name == genre;
+                });
+
+                this.currentFilmList = filmsByGenre.list;
+            },
+            getFilmsByPage: function (page) {
+                axios
+                    .get("https://api.themoviedb.org/3/trending/all/week?api_key=a80e3ddac5951a3c686e7677c4007931&page=" + page)
+                    .then(response => {
+                        this.filmList = response.data.results;
+                        this.getGenreFilms();
+                        this.filmsByGenre = this.getFilmsByGenre();
+                        this.currentFilmList = this.filmList;
+                    });
             }
         },
         mounted() {
             // a80e3ddac5951a3c686e7677c4007931
-            axios
-                .get('https://api.themoviedb.org/3/trending/all/week?api_key=a80e3ddac5951a3c686e7677c4007931&page=10')
-                .then(response => {
-                    this.filmList = response.data.results;
-                    this.getGenreFilms();
-                    this.filmsByGenre = this.getFilmsByGenre();
-                });
+            this.getFilmsByPage(1);
 
             axios
                 .get('https://api.themoviedb.org/3/genre/movie/list?api_key=a80e3ddac5951a3c686e7677c4007931&language=en-US')
@@ -100,12 +126,21 @@
     ul {
         list-style: none;
     }
+    button {
+        background-color: transparent;
+        outline: none;
+        border: 1px solid #2c3e50;
+        padding: 5px 10px;
+        font-family: Montserrat;
+        margin-left: 5px;
+    }
     .wrapper {
         display: flex;
         justify-content: center;
-        align-items: flex-start;
+        align-items: center;
         width: 100%;
         height: auto;
+        flex-direction: column;
     }
     .film__list {
         display: flex;

@@ -2,7 +2,7 @@
     <li class="film-item">
         <router-link :to="getRouterLinkObject" class="film-item__link">
             <div class="film-item__card">
-                <img :src="imgSource" alt="" class="film-item__img">
+                <img :src="'https://image.tmdb.org/t/p/w500' + filmData.poster_path" alt="" class="film-item__img">
                 <div class="film-item__properties">
                     <h2>{{ filmData.original_title }}</h2>
                     <div class="film-item__genres" v-for="genre in genres">{{ genre }}</div>
@@ -25,10 +25,7 @@
                 imgSource: ''
             };
         },
-
         mounted() {
-            // a80e3ddac5951a3c686e7677c4007931
-            this.imgSource = 'https://image.tmdb.org/t/p/w500' + this.filmData.poster_path;
 
         },
         computed: {
